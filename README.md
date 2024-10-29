@@ -1,56 +1,59 @@
-# Snake Game - Python Console Implementation
+## Snake Game - Python Console Version
 
-## Overview
-A classic Snake game implemented in Python that runs in the console/terminal with keyboard controls.
+A classic Snake game implemented in Python that runs in the console with keyboard controls.
 
-## Files Structure
-- `snake_game.py` - Main game launcher
-- `game_engine.py` - Core game logic and rendering
-- `requirements.txt` - Dependency information
+### Features
+- 🐍 Classic Snake gameplay
+- 🎮 Keyboard controls (WASD or Arrow Keys)
+- 🍎 Food collection and score tracking
+- 🎯 Collision detection (walls and self)
+- 📊 Score display
+- 🖥️ Cross-platform compatibility
 
-## Requirements
+### Requirements
 - Python 3.6 or higher
-- No external dependencies required (uses only Python standard library)
+- No external dependencies required!
 
-## Installation & Usage
+### How to Run
 
-1. **Save all files** in the same directory
+1. **Make sure you have all files in the same directory:**
+   - `snake_game.py` (main game logic)
+   - `game_utils.py` (utility functions)
+   - `run_game.py` (launcher script)
+   - `requirements.txt` (dependencies info)
 
-2. **Run the game**:
+2. **Run the game using one of these methods:**
+
+   **Method 1: Using the launcher script**
+   ```bash
+   python run_game.py
+   ```
+
+   **Method 2: Direct execution**
    ```bash
    python snake_game.py
    ```
 
-3. **Game Controls**:
-   - **W** - Move Up
-   - **S** - Move Down  
-   - **A** - Move Left
-   - **D** - Move Right
-   - **Q** - Quit Game
+### Controls
+- **W** or **↑** - Move Up
+- **S** or **↓** - Move Down  
+- **A** or **←** - Move Left
+- **D** or **→** - Move Right
+- **Q** - Quit Game
 
-## Game Features
-- Snake grows when eating food (★)
-- Score tracking
-- Wall collision detection
-- Self-collision detection
-- Real-time keyboard controls
-- Cross-platform compatibility (Windows/Linux/macOS)
+### Game Rules
+1. Control the snake to eat the food (🍎)
+2. Each food eaten increases your score by 10 points
+3. The snake grows longer with each food eaten
+4. Game ends if you:
+   - Hit the wall
+   - Collide with yourself
+   - Press 'Q' to quit
 
-## How to Play
-1. Run the game using `python snake_game.py`
-2. Press Enter to start
-3. Use WASD keys to control the snake
-4. Eat the food (★) to grow and increase score
-5. Avoid hitting walls or yourself
-6. Press Q to quit anytime
+### Troubleshooting
+- If arrow keys don't work, use WASD keys instead
+- On Windows, the game uses `msvcrt` for input
+- On Unix/Linux/Mac, it uses `termios` and `select`
+- Make sure your terminal window is large enough to display the game board
 
-## Platform Notes
-- **Windows**: Uses `msvcrt` for keyboard input
-- **Unix/Linux/macOS**: Uses `select` for non-blocking input
-
-## Customization
-You can modify these parameters in `game_engine.py`:
-- `width` and `height`: Game board dimensions
-- Game speed: Adjust the `time.sleep()` value in the `run()` method
-
-Enjoy the game!
+Enjoy the game! 🎮
