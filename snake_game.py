@@ -1,141 +1,224 @@
+#!/usr/bin/env python3
 """
 Classic Snake Game for Python Console
-Uses keyboard controls for movement
+Use arrow keys to control the snake
 """
 
 import os
+import sys
 import time
 import random
-import sys
-from game_utils import clear_screen, get_key
+import threading
+from collections import deque
+
+try:
+    import msvcrt  # For Windows
+except ImportError:
+    import select  # For Unix/Linux/Mac
+    import termios
+    import tty
+
 
 class SnakeGame:
     def __init__(self, width=20, height=15):
         self.width = width
         self.height = height
-        self.snake = [(height // 2, width // 2)]
-        self.food = self.generate_food()
-        self.direction = 'RIGHT'
         self.score = 0
         self.game_over = False
+        self.direction = 'RIGHT'
+        self.last_direction = 'RIGHT'
         
-    def generate_food(self):
-        """Generate food at random position not occupied by snake"""
+        # Initialize snake in the middle of the board
+        start_x = width // 2
+        start_y = height // 2
+        self.snake = deque([(start_x, start_y), (start_x-1, start_y), (start_x-2, start_y)])
+        
+        # Place first food
+        self.food = self._place_food()
+        
+        # Keyboard input setup
+        self.key_pressed = None
+        self._setup_keyboard()
+
+    def _setup_keyboard(self):
+        """Setup keyboard input for different operating systems"""
+        if os.name == 'nt':  # Windows
+            self.get_key = self._get_key_windows
+        else:  # Unix/Linux/Mac
+            self._old_settings = termios.tcgetattr(sys.stdin)
+            tty.setraw(sys.stdin.fileno())
+            self.get_key = self._get_key_unix
+
+    def _get_key_windows(self):
+        """Get keyboard input for Windows"""
+        if msvcrt.kbhit():
+            key = msvcrt.getch()
+            if key == b'\xe0':  # Arrow keys
+                key = msvcrt.getch()
+                return key
+            return key
+        return None
+
+    def _get_key_unix(self):
+        """Get keyboard input for Unix/Linux/Mac"""
+        if select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], []):
+            return sys.stdin.read(1)
+        return None
+
+    def _cleanup_keyboard(self):
+        """Clean up keyboard settings"""
+        if os.name != 'nt':
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self._old_settings)
+
+    def _place_food(self):
+        """Place food at random position not occupied by snake"""
         while True:
-            food = (random.randint(0, self.height - 1), random.randint(0, self.width - 1))
+            food = (random.randint(0, self.width-1), random.randint(0, self.height-1))
             if food not in self.snake:
                 return food
-    
-    def draw_board(self):
-        """Draw the game board with snake, food, and borders"""
-        clear_screen()
+
+    def _clear_screen(self):
+        """Clear the console screen"""
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+    def _draw_board(self):
+        """Draw the game board"""
+        board = []
         
-        # Draw top border
-        print('┌' + '─' * (self.width * 2) + '┐')
+        # Top border
+        board.append('┌' + '─' * (self.width * 2) + '┐')
         
-        for row in range(self.height):
-            line = '│'
-            for col in range(self.width):
-                if (row, col) == self.snake[0]:
-                    line += '██'  # Snake head
-                elif (row, col) in self.snake:
-                    line += '░░'  # Snake body
-                elif (row, col) == self.food:
-                    line += '🍎'  # Food
-                else:
-                    line += '  '  # Empty space
-            line += '│'
-            print(line)
+        # Game area
+        for y in range(self.height):
+            row = ['│']
+            for x in range(self.width):
+                if (x, y) == self.snake[0]:  # Snake head
+                    row.append('██')
+                elif (x, y) in self.snake:  # Snake body
+                    row.append('░░')
+                elif (x, y) == self.food:  # Food
+                    row.append('◉◉')
+                else:  # Empty space
+                    row.append('  ')
+            row.append('│')
+            board.append(''.join(row))
         
-        # Draw bottom border
-        print('└' + '─' * (self.width * 2) + '┘')
-        print(f"Score: {self.score} | Use WASD or Arrow Keys to move | Press 'Q' to quit")
-    
-    def move_snake(self):
-        """Move the snake in current direction"""
-        head_row, head_col = self.snake[0]
+        # Bottom border
+        board.append('└' + '─' * (self.width * 2) + '┘')
         
-        # Calculate new head position based on direction
+        # Score
+        board.append(f"Score: {self.score}")
+        board.append("Use arrow keys to control. Press 'q' to quit.")
+        
+        return '\n'.join(board)
+
+    def _process_input(self):
+        """Process keyboard input"""
+        key = self.get_key()
+        
+        if key:
+            if os.name == 'nt':  # Windows
+                if key == b'H':  # Up arrow
+                    self.direction = 'UP'
+                elif key == b'P':  # Down arrow
+                    self.direction = 'DOWN'
+                elif key == b'K':  # Left arrow
+                    self.direction = 'LEFT'
+                elif key == b'M':  # Right arrow
+                    self.direction = 'RIGHT'
+                elif key == b'q':
+                    self.game_over = True
+            else:  # Unix/Linux/Mac
+                if key == '\x1b':  # Escape sequence for arrow keys
+                    # Read the next two characters
+                    key = sys.stdin.read(2)
+                    if key == '[A':
+                        self.direction = 'UP'
+                    elif key == '[B':
+                        self.direction = 'DOWN'
+                    elif key == '[C':
+                        self.direction = 'RIGHT'
+                    elif key == '[D':
+                        self.direction = 'LEFT'
+                elif key == 'q':
+                    self.game_over = True
+
+    def _update_game(self):
+        """Update game state"""
+        # Prevent 180-degree turns
+        if (self.direction == 'UP' and self.last_direction == 'DOWN') or \
+           (self.direction == 'DOWN' and self.last_direction == 'UP') or \
+           (self.direction == 'LEFT' and self.last_direction == 'RIGHT') or \
+           (self.direction == 'RIGHT' and self.last_direction == 'LEFT'):
+            self.direction = self.last_direction
+
+        head_x, head_y = self.snake[0]
+        
+        # Calculate new head position
         if self.direction == 'UP':
-            new_head = (head_row - 1, head_col)
+            new_head = (head_x, head_y - 1)
         elif self.direction == 'DOWN':
-            new_head = (head_row + 1, head_col)
+            new_head = (head_x, head_y + 1)
         elif self.direction == 'LEFT':
-            new_head = (head_row, head_col - 1)
+            new_head = (head_x - 1, head_y)
         elif self.direction == 'RIGHT':
-            new_head = (head_row, head_col + 1)
+            new_head = (head_x + 1, head_y)
         
-        # Check for collisions
-        if (new_head[0] < 0 or new_head[0] >= self.height or 
-            new_head[1] < 0 or new_head[1] >= self.width or
-            new_head in self.snake):
+        # Check for collisions with walls
+        if (new_head[0] < 0 or new_head[0] >= self.width or 
+            new_head[1] < 0 or new_head[1] >= self.height):
+            self.game_over = True
+            return
+        
+        # Check for collisions with self
+        if new_head in self.snake:
             self.game_over = True
             return
         
         # Move snake
-        self.snake.insert(0, new_head)
+        self.snake.appendleft(new_head)
         
         # Check if food is eaten
         if new_head == self.food:
             self.score += 10
-            self.food = self.generate_food()
+            self.food = self._place_food()
         else:
             self.snake.pop()  # Remove tail if no food eaten
-    
-    def change_direction(self, new_direction):
-        """Change snake direction (prevent 180-degree turns)"""
-        opposite_directions = {'UP': 'DOWN', 'DOWN': 'UP', 'LEFT': 'RIGHT', 'RIGHT': 'LEFT'}
-        if new_direction != opposite_directions.get(self.direction):
-            self.direction = new_direction
-    
+        
+        self.last_direction = self.direction
+
     def run(self):
         """Main game loop"""
-        print("Welcome to Snake Game!")
-        print("Controls: WASD or Arrow Keys to move, Q to quit")
-        input("Press Enter to start...")
-        
-        while not self.game_over:
-            self.draw_board()
+        try:
+            while not self.game_over:
+                self._clear_screen()
+                print(self._draw_board())
+                
+                self._process_input()
+                self._update_game()
+                
+                time.sleep(0.1)  # Game speed
             
-            # Get user input with timeout
-            key = get_key(0.2)
+            # Game over screen
+            self._clear_screen()
+            print("GAME OVER!")
+            print(f"Final Score: {self.score}")
+            print("Thanks for playing!")
             
-            if key == 'q' or key == 'Q':
-                break
-            
-            # Handle movement keys
-            key_directions = {
-                'w': 'UP', 'W': 'UP', 
-                's': 'DOWN', 'S': 'DOWN',
-                'a': 'LEFT', 'A': 'LEFT',
-                'd': 'RIGHT', 'D': 'RIGHT',
-                'UP': 'UP', 'DOWN': 'DOWN', 'LEFT': 'LEFT', 'RIGHT': 'RIGHT'
-            }
-            
-            if key in key_directions:
-                self.change_direction(key_directions[key])
-            
-            self.move_snake()
-            time.sleep(0.1)  # Game speed
-        
-        # Game over screen
-        clear_screen()
-        print("┌─────────────────────────┐")
-        print("│      GAME OVER!         │")
-        print("└─────────────────────────┘")
-        print(f"Final Score: {self.score}")
-        print(f"Snake Length: {len(self.snake)}")
-        print("\nThanks for playing!")
+        finally:
+            self._cleanup_keyboard()
+
 
 def main():
     """Main function to start the game"""
-    try:
-        game = SnakeGame()
-        game.run()
-    except KeyboardInterrupt:
-        print("\n\nGame interrupted. Thanks for playing!")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    print("Welcome to Snake Game!")
+    print("Controls: Arrow keys to move, 'q' to quit")
+    print("Press Enter to start...")
+    input()
+    
+    game = SnakeGame()
+    game.run()
+
 
 if __name__ == "__main__":
     main()
