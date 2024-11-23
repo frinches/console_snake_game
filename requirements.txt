@@ -1,2 +1,2 @@
 # No external dependencies required for basic functionality
-# This game uses only Python standard library
+# Uses only Python standard library
