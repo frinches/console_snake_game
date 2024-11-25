@@ -1,78 +1,45 @@
 ## Snake Game - Console Version
 
-A classic Snake game implemented in Python that runs in the terminal/console with keyboard controls.
+A simple implementation of the classic Snake game that runs in the Python console with keyboard controls.
 
-### Requirements
-- Python 3.6 or higher
-- No external dependencies (uses only Python standard library)
+### How to Use
 
-### Installation & Setup
+1. **Requirements**: 
+   - Python 3.6 or higher
+   - No external dependencies required
 
-1. **Download the files:**
-   - `snake_game.py` (main game file)
-   - `requirements.txt` (dependency info)
-   - `install.py` (optional setup script)
-
-2. **Run the setup (optional):**
-   ```bash
-   python install.py
-   ```
-
-3. **Start the game:**
+2. **Running the Game**:
    ```bash
    python snake_game.py
    ```
 
-### How to Play
+3. **Controls**:
+   - **W**: Move Up
+   - **A**: Move Left  
+   - **S**: Move Down
+   - **D**: Move Right
+   - **Q**: Quit Game
 
-1. **Controls:**
-   - **Arrow Keys**: Move the snake (Up/Down/Left/Right)
-   - **Q**: Quit the game
-
-2. **Game Rules:**
-   - Control the snake (██ head, ░░ body) to eat food (◉◉)
+4. **Game Rules**:
+   - Control the snake (O = head, o = body) to eat the food (*)
    - Each food eaten increases your score by 10 points
-   - The snake grows longer with each food consumed
-   - Game ends if you:
-     - Hit the wall
-     - Collide with yourself
-     - Press 'q' to quit
+   - The snake grows longer with each food eaten
+   - Game ends if the snake hits the wall or itself
 
-3. **Game Board:**
-   ```
-   ┌────────────────────────┐
-   │                        │
-   │        ██░░░░◉◉        │
-   │                        │
-   └────────────────────────┘
-   Score: 30
-   Use arrow keys to control. Press 'q' to quit.
-   ```
+5. **Files Description**:
+   - `snake_game.py`: Main game logic and entry point
+   - `game_utils.py`: Utility functions for screen clearing and keyboard input
+   - `requirements.txt`: Dependency information (none required)
 
 ### Features
-- Cross-platform compatibility (Windows, Linux, Mac)
-- Real-time keyboard input
+- Real-time keyboard controls
 - Score tracking
-- Simple console-based graphics
-- No external dependencies
+- Game over detection (wall collision, self collision)
+- Cross-platform compatibility (Windows, Linux, macOS)
 
 ### Troubleshooting
+- If keyboard input doesn't work properly, try running in a different terminal/console
+- On some systems, you may need to press Enter after certain keys
+- The game uses non-blocking input with timeout for smooth gameplay
 
-**Windows:**
-- Make sure Command Prompt or PowerShell supports arrow keys
-- Run as administrator if keyboard input doesn't work
-
-**Linux/Mac:**
-- Ensure terminal supports ANSI escape sequences
-- Some terminals might require additional configuration for raw input
-
-**Common Issues:**
-- If arrow keys don't work, try running in a different terminal
-- Game runs too fast/slow? Adjust the `time.sleep(0.1)` value in `snake_game.py`
-
-### File Structure
-- `snake_game.py` - Main game implementation
-- `requirements.txt` - Dependency information
-- `install.py` - Setup and instructions script
-
-Enjoy the classic Snake game! 🐍
+Enjoy the game!
