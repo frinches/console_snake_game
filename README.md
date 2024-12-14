@@ -1,45 +1,51 @@
-## Snake Game - Console Version
+# Snake Game - Console Version
 
-A simple implementation of the classic Snake game that runs in the Python console with keyboard controls.
+## Overview
+A classic Snake game implemented in Python that runs in the console with keyboard controls.
 
-### How to Use
+## Files Structure
+- `snake_game.py` - Main entry point
+- `game_engine.py` - Main game loop and logic
+- `snake.py` - Snake movement and controls
+- `food.py` - Food generation
+- `game_board.py` - Game board rendering
 
-1. **Requirements**: 
-   - Python 3.6 or higher
-   - No external dependencies required
+## Requirements
+- Python 3.6+
+- Unix-like terminal (Linux/macOS) or Windows Command Prompt/PowerShell
 
-2. **Running the Game**:
+## How to Run
+1. Save all files in the same directory
+2. Run the main script:
    ```bash
    python snake_game.py
    ```
 
-3. **Controls**:
-   - **W**: Move Up
-   - **A**: Move Left  
-   - **S**: Move Down
-   - **D**: Move Right
-   - **Q**: Quit Game
+## Controls
+- **W** - Move Up
+- **S** - Move Down  
+- **A** - Move Left
+- **D** - Move Right
+- **Q** - Quit Game
 
-4. **Game Rules**:
-   - Control the snake (O = head, o = body) to eat the food (*)
-   - Each food eaten increases your score by 10 points
-   - The snake grows longer with each food eaten
-   - Game ends if the snake hits the wall or itself
+## Game Rules
+- Control the snake to eat food (●)
+- Each food eaten increases your score by 10 points and makes the snake grow
+- Game ends if:
+  - Snake hits the wall
+  - Snake collides with itself
+- Try to achieve the highest score possible!
 
-5. **Files Description**:
-   - `snake_game.py`: Main game logic and entry point
-   - `game_utils.py`: Utility functions for screen clearing and keyboard input
-   - `requirements.txt`: Dependency information (none required)
-
-### Features
-- Real-time keyboard controls
+## Features
+- Real-time keyboard input
 - Score tracking
-- Game over detection (wall collision, self collision)
-- Cross-platform compatibility (Windows, Linux, macOS)
+- Snake length display
+- Visual board with borders
+- Collision detection
 
-### Troubleshooting
-- If keyboard input doesn't work properly, try running in a different terminal/console
-- On some systems, you may need to press Enter after certain keys
-- The game uses non-blocking input with timeout for smooth gameplay
+## Notes
+- The game uses non-blocking input for smooth controls
+- Board size is configurable (default: 20x15)
+- Game speed is fixed at 0.2 seconds per frame
 
-Enjoy the game!
+Enjoy the game! 🐍
